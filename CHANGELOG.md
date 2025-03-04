@@ -68,3 +68,6 @@ TODO
 
 ## 1.0.1
 - Upgrade android example to android
+
+## 1.0.2
+- Feat: Acceptable Error Configuration

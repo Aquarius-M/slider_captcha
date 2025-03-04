@@ -23,8 +23,10 @@ class SliderCaptcha extends StatefulWidget {
     this.imageToBarPadding = 0,
     this.slideContainerDecoration,
     this.icon,
+    this.threshold = 10,
     Key? key,
   })  : assert(0 <= borderImager && borderImager <= 5),
+        assert(0 <= threshold),
         super(key: key);
 
   final Widget image;
@@ -54,6 +56,9 @@ class SliderCaptcha extends StatefulWidget {
 
   /// to make sure no problems arise, borderImage only allows sheet limit 0 -> 5
   final double borderImager;
+
+  /// allowable error
+  final double threshold;
 
   @override
   State<SliderCaptcha> createState() => _SliderCaptchaState();
@@ -252,7 +257,7 @@ class _SliderCaptchaState extends State<SliderCaptcha>
     if (isLock) return;
     isLock = true;
 
-    if (_offsetMove < answerX + 10 && _offsetMove > answerX - 10) {
+    if (_offsetMove < answerX + widget.threshold && _offsetMove > answerX - widget.threshold) {
       await widget.onConfirm?.call(true);
     } else {
       await widget.onConfirm?.call(false);
