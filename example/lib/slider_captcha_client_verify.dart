@@ -17,10 +17,11 @@ class _SliderCaptchaClientVerifyState extends State<SliderCaptchaClientVerify> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.amber,
       appBar: AppBar(),
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 50),
+          padding: const EdgeInsets.symmetric(horizontal: 30),
           child: SliderCaptcha(
             controller: controller,
             image: Image.asset(
@@ -29,13 +30,18 @@ class _SliderCaptchaClientVerifyState extends State<SliderCaptchaClientVerify> {
             ),
             colorBar: Colors.blue,
             colorCaptChar: Colors.blue,
+            title: "滑动验证",
+            captchaSize: 30,
+            borderRadius: 5,
             onConfirm: (value) async {
               debugPrint(value.toString());
-              return await Future.delayed(const Duration(seconds: 5)).then(
+              // if (value == false) {
+              return await Future.delayed(const Duration(seconds: 2)).then(
                 (value) {
                   controller.create.call();
                 },
               );
+              // }
             },
           ),
         ),

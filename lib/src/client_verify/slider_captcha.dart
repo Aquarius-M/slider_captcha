@@ -19,13 +19,12 @@ class SliderCaptcha extends StatefulWidget {
     this.colorBar = Colors.red,
     this.colorCaptChar = Colors.blue,
     this.controller,
-    this.borderImager = 0,
-    this.imageToBarPadding = 0,
+    this.borderRadius = 0,
     this.slideContainerDecoration,
     this.icon,
     this.threshold = 10,
     Key? key,
-  })  : assert(0 <= borderImager && borderImager <= 5),
+  })  : assert(0 <= borderRadius && borderRadius <= 10),
         assert(0 <= threshold),
         super(key: key);
 
@@ -50,12 +49,8 @@ class SliderCaptcha extends StatefulWidget {
 
   final SliderController? controller;
 
-  /// Adds space between the captcha image and the slide button bar.
-  /// Defaults is 0
-  final double imageToBarPadding;
-
-  /// to make sure no problems arise, borderImage only allows sheet limit 0 -> 5
-  final double borderImager;
+  /// to make sure no problems arise, borderRadius only allows sheet limit 0 -> 10
+  final double borderRadius;
 
   /// allowable error
   final double threshold;
@@ -85,9 +80,12 @@ class _SliderCaptchaState extends State<SliderCaptcha>
 
   late AnimationController animationController;
 
+  bool isError = false;
+  bool isLoading = false;
+
   @override
   Widget build(BuildContext context) {
-    return ConstrainedBox(
+    return Container(
       constraints: const BoxConstraints(maxWidth: 500),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.start,
@@ -96,23 +94,47 @@ class _SliderCaptchaState extends State<SliderCaptcha>
         children: [
           Flexible(
             child: ClipRRect(
-              borderRadius: BorderRadius.circular(widget.borderImager),
-              child: SliderCaptCha(
-                widget.image,
-                _offsetMove,
-                answerY,
-                colorCaptChar: widget.colorCaptChar,
-                sliderController: _controller,
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(widget.borderRadius),
+                topRight: Radius.circular(widget.borderRadius),
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    height: 5,
+                    color: isError ? Colors.red : widget.colorBar,
+                  ),
+                  Container(
+                    color: isError ? Colors.red : widget.colorBar,
+                    child: Stack(
+                      alignment: AlignmentDirectional.center,
+                      children: [
+                        SliderCaptCha(
+                          widget.image,
+                          _offsetMove,
+                          answerY,
+                          sizeCaptChar: widget.captchaSize,
+                          colorCaptChar: widget.colorCaptChar,
+                          sliderController: _controller,
+                        ),
+                        if (isError) CircularProgressIndicator(),
+                      ],
+                    ),
+                  ),
+                ],
               ),
             ),
           ),
-          SizedBox(height: widget.imageToBarPadding),
           Container(
             height: heightSliderBar,
             width: double.infinity,
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(10),
-              color: widget.colorBar,
+              borderRadius: BorderRadius.only(
+                bottomLeft: Radius.circular(widget.borderRadius),
+                bottomRight: Radius.circular(widget.borderRadius),
+              ),
+              color: isError ? Colors.red : widget.colorBar,
               boxShadow: const <BoxShadow>[
                 BoxShadow(
                   offset: Offset(0, 0),
@@ -257,15 +279,23 @@ class _SliderCaptchaState extends State<SliderCaptcha>
     if (isLock) return;
     isLock = true;
 
-    if (_offsetMove < answerX + widget.threshold && _offsetMove > answerX - widget.threshold) {
+    if (_offsetMove < answerX + widget.threshold &&
+        _offsetMove > answerX - widget.threshold) {
+      setState(() {
+        isError = false;
+      });
       await widget.onConfirm?.call(true);
     } else {
+      setState(() {
+        isError = true;
+      });
       await widget.onConfirm?.call(false);
     }
     isLock = false;
   }
 
   Offset? create() {
+    isError = false;
     animationController.forward().then((value) {
       Offset? offset = _controller.create.call();
       answerX = offset?.dx ?? 0;

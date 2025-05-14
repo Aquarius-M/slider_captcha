@@ -1,0 +1,2 @@
+/Users/nephkis/Desktop/自建/slider_captcha/example/android/app/.cxx/Debug/455r2oo6/x86_64/CMakeFiles/edit_cache.dir
+/Users/nephkis/Desktop/自建/slider_captcha/example/android/app/.cxx/Debug/455r2oo6/x86_64/CMakeFiles/rebuild_cache.dir
