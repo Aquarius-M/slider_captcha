@@ -28,7 +28,7 @@ class _SliderCaptchaClientVerifyState extends State<SliderCaptchaClientVerify> {
               'assets/image.jpeg',
               fit: BoxFit.fitWidth,
             ),
-            colorBar: Colors.blue,
+            colorBar: Colors.white,
             colorCaptChar: Colors.blue,
             title: "滑动验证",
             captchaSize: 30,
