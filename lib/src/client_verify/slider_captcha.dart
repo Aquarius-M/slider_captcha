@@ -64,7 +64,7 @@ class _SliderCaptchaState extends State<SliderCaptcha>
   // 常量
   static const double _sliderHeight = 50;
   static const Duration _animationDuration = Duration(milliseconds: 500);
-  static const Duration _loadingDelay = Duration(milliseconds: 300);
+  static const Duration _loadingDelay = Duration(milliseconds: 500);
 
   // 状态变量
   double _offsetMove = 0;
@@ -72,6 +72,7 @@ class _SliderCaptchaState extends State<SliderCaptcha>
   double _answerY = 0;
   bool _isLock = false;
   bool _isError = false;
+  bool _isSuccess = false;
   bool _isLoading = false;
 
   // 控制器
@@ -91,7 +92,7 @@ class _SliderCaptchaState extends State<SliderCaptcha>
     _controller.create = _create;
 
     _animationController = AnimationController(
-      duration: const Duration(milliseconds: 500),
+      duration: _animationDuration,
       vsync: this,
     );
 
@@ -119,12 +120,15 @@ class _SliderCaptchaState extends State<SliderCaptcha>
 
   /// 创建新的验证码
   Offset? _create() {
-    _isError = false;
-
     // 先获取新的验证码位置
     Offset? offset = _controller.create.call();
-    _answerX = offset?.dx ?? 0;
-    _answerY = offset?.dy ?? 0;
+
+    setState(() {
+      _isError = false;
+      _isSuccess = false; // 重置成功状态
+      _answerX = offset?.dx ?? 0;
+      _answerY = offset?.dy ?? 0;
+    });
 
     // 然后执行动画
     _animationController.forward();
@@ -143,20 +147,24 @@ class _SliderCaptchaState extends State<SliderCaptcha>
 
       setState(() {
         _isError = !isCorrect;
+        _isSuccess = isCorrect; // 设置成功状态
         _isLoading = !isCorrect;
       });
 
       // 回调通知结果
       await widget.onConfirm?.call(isCorrect);
 
-      // 如果错误，刷新验证码
       if (!isCorrect) {
+        // 错误情况：显示加载动画，延迟后刷新
         await Future.delayed(_loadingDelay);
         _create();
 
         setState(() {
           _isLoading = false;
         });
+      } else {
+        _isLock = false;
+        _refreshCaptcha();
       }
     } finally {
       _isLock = false;
@@ -201,13 +209,14 @@ class _SliderCaptchaState extends State<SliderCaptcha>
     setState(() {
       _isLoading = true;
       _offsetMove = 0;
-      _isError = false;
     });
 
     await Future.delayed(_loadingDelay);
     _create();
 
     setState(() {
+      _isError = false;
+      _isSuccess = false; // 重置成功状态
       _isLoading = false;
     });
   }
@@ -244,7 +253,7 @@ class _SliderCaptchaState extends State<SliderCaptcha>
               height: 5,
               color: _isError
                   ? widget.errorColor
-                  : _isError
+                  : _isSuccess
                       ? widget.successColor
                       : widget.colorBar,
             ),

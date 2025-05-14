@@ -33,16 +33,7 @@ class _SliderCaptchaClientVerifyState extends State<SliderCaptchaClientVerify> {
             title: "滑动验证",
             captchaSize: 30,
             borderRadius: 5,
-            onConfirm: (value) async {
-              debugPrint(value.toString());
-              // if (value == false) {
-              return await Future.delayed(const Duration(seconds: 2)).then(
-                (value) {
-                  controller.create.call();
-                },
-              );
-              // }
-            },
+            onConfirm: (value) async {},
           ),
         ),
       ),
